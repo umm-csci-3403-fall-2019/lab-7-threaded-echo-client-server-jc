@@ -8,41 +8,29 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class EchoClientThreadOut implements Runnable{
-    private final InputStream input;
-    private final OutputStream output;
     private final Socket socket;
 
-    public EchoClientThreadOut(InputStream input, OutputStream output, Socket socket){
-        this.input = input;
-        this.output = output;
+    public EchoClientThreadOut(Socket socket){
         this.socket = socket;
     }
 
-    @Override
     public void run(){
         try {
-        // Start listening on the specified port
-        ServerSocket sock = new ServerSocket(portNumber);
 
-        // Run forever, which is common for server style services
-        while (true) {
-            // Wait until someone connects, thereby requesting a date
-            Socket client = sock.accept();
-            System.out.println("Got a request!");
+            InputStream input = socket.getInputStream();
+            int singleByte;
 
-            int myBytes;
-            InputStream input = client.getInputStream();
-            OutputStream output = client.getOutputStream();
-
-            while ((myBytes = input.read()) != -1){
-                output.write(myBytes);
+            while ((singleByte = input.read()) != -1) {
+                //input.write(singleByte);
+                //output.flush();
+                System.out.write(singleByte);
+//                System.out.flush();
             }
-
-            // Close the client socket since we're done.
-            client.close();
+            System.out.flush();
+            socket.shutdownOutput();
         }
         // *Very* minimal error handling.
-    } catch (IOException ioe) {
+      catch (IOException ioe) {
         System.out.println("We caught an unexpected exception");
         System.err.println(ioe);
     }
