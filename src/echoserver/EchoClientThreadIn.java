@@ -7,31 +7,25 @@ import java.net.ConnectException;
 import java.net.Socket;
 
 public class EchoClientThreadIn implements Runnable{
-    private final InputStream input;
-    private final OutputStream output;
     private final Socket socket;
 
-    public EchoClientThreadIn(InputStream input, OutputStream output, Socket socket){
-        this.input = input;
-        this.output = output;
+    public EchoClientThreadIn(Socket socket){
         this.socket = socket;
     }
 
-    @Override
     public void run(){
         try {
 
+            OutputStream output = socket.getOutputStream();
             int singleByte;
 
             while ((singleByte = System.in.read()) != -1) {
                 output.write(singleByte);
-                output.flush();
-                System.out.write(input.read());
-                System.out.flush();
             }
+            output.flush();
 
             // Close the socket when we're done reading from it
-            socket.close();
+            socket.shutdownOutput();
 
             // Provide some minimal error handling.
         } catch (ConnectException ce) {
